@@ -1,33 +1,45 @@
-function writeFromInput()
-{
 	var titulo = document.getElementById("title");
 	var contenido = document.getElementById("content");
 	var images = document.getElementById("images");	
-	var link = document.getElementById('link');
+	var link = document.getElementById("link");
+	var mainContainer = document.getElementById("container")
 
-	if (titulo.value.trim() == "" || contenido.value.trim() == ""  || images.value.trim() == "" || link.value.trim() == "" ) 
+
+	function writeFromInput()
 	{
-		alert("INGRESAR CONTENIDO");
-		return;
+
+		if (titulo.value.trim() == "" || contenido.value.trim() == ""  || images.value.trim() == "" || link.value.trim() == "" ) 
+		{
+			alert("INGRESAR CONTENIDO");
+			return;
+		}
+
+		var newContainer = mainContainer.querySelector("[div-container][edit]");
+
+		if (newContainer) {
+			cardEdit(newContainer,titulo.value,contenido.value,images.value,link.value);
+		}
+		else {
+			writeNew(titulo.value,contenido.value,images.value,link.value);
+		}
+
+		clearForm();
 	}
 
-	writeNew(
-		titulo.value,
-		contenido.value,
-		images.value,
-		link.value,
-		);
-
+function clearForm()
+{
 	titulo.value = "";
 	contenido.value = "";
 	images.value = "";
 	link.value = "";
 }
 
-function writeNew(title, content)
+function writeNew(title, content, images, link)
 {
 	var div = document.createElement("div");
 	div.classList.add("col-lg-4", "col-sm-6" ,"card", "border-dark");
+	div.setAttribute("div-container", true);
+	var articulo = document.createElement("card");
 
 	var divCard = document.createElement("div");
 	divCard.classList.add("card-body");
@@ -49,6 +61,18 @@ function writeNew(title, content)
 	comprar.textContent = "Comprar";
 	comprar.setAttribute("href", link.value);
 
+	var btnEliminar = document.createElement("button");
+	btnEliminar.textContent = "Borrar";
+	btnEliminar.classList.add("btn", "btn-danger", "fw-bold");
+	btnEliminar.setAttribute("onclick", "remove(this)");
+
+
+	var btnEditar = document.createElement("button");
+	btnEditar.textContent = "Editar";
+	btnEditar.classList.add("btn", "btn-secondary", "fw-bold");
+	btnEditar.setAttribute("onclick", "edit(this)");
+
+
 
 
 divCard.append(images);
@@ -56,23 +80,59 @@ divCard.append(h);
 divCard.append(p);
 divCard.append(comprar);
 div.append(divCard);
-
-
-var button = document.createElement("button");
-button.textContent = "X";
-button.classList.add("btn", "btn-primary");
-button.setAttribute("onclick", "remove(this)");
-
-
-div.append(button);
+div.prepend(btnEliminar);
+div.prepend(btnEditar);
 
 document.getElementById("container").append(div);
 }
 
 
+function cardEdit(container, title, content, images, link)
+{
+	container.querySelector("h3").textContent = title;
+	container.querySelector("p").textContent = content;
+	container.querySelector("img").setAttribute("src", images.value);
+	container.querySelector("a").setAttribute("href", link.value);
+
+	var buttons = container.querySelectorAll("button");
+
+	for (var i = 0; i < buttons.length; i++) {
+		buttons[i].removeAttribute("disabled");
+	}
+
+	container.removeAttribute("edit");
+}
+
 function remove(button)
 {
 	if (confirm("Desea borrar?")) {
 	button.closest("div").remove();
+	}
+}
+
+
+function edit(boton)
+{
+	var container = boton.closest("[div-container]");
+	var allButtons = boton.closest("#container").querySelectorAll("button");
+
+	for (var i = 0; i < allButtons.length; i++)  {
+		allButtons[i].removeAttribute("disabled");
+
+		break;
+	}
+
+	container.setAttribute("edit", true);
+
+	titulo.value = container.querySelector("h3").textContent;
+	contenido.value = container.querySelector("p").textContent;
+	images.value = container.querySelector("img").getAttribute("src");
+	link.value = container.querySelector("a").getAttribute("href");
+
+
+	var buttons = container.querySelectorAll("button");
+
+	for (var i = 0; i < buttons.length; i++) {
+		buttons[i].setAttribute("disabled", true);
 	}
 }
